@@ -1,6 +1,5 @@
 import { User } from '../models'
 import firebase from '../services/firebase'
-const serviceAccount = require('../config/firebase.json')
 
 export const login = async (ctx, next) => {
   try {

@@ -6,6 +6,5 @@ tmp
 data/**
 public/assets/**
 .env
-config/firebase.json
 db/seeds**
 yarn-error.log

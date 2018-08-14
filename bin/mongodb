@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# resource: https://hub.docker.com/_/mongo/
+container_name=tess-mongo
+
+function start {
+  echo "Starting MongoDB"
+  docker run \
+    --detach \
+    --name $container_name \
+    --env="MYSQL_ROOT_PASSWORD=root" \
+    --publish 27017:27017 \
+    --volume="$(pwd)"/docker/mongodb:/data/db \
+    mongo:3.0.15
+}
+
+function run {
+  trap stop SIGINT SIGTERM
+  start
+  docker logs -f $(docker ps -aqf "name=$container_name")
+  while true; do :; done
+}
+
+function stop {
+  {
+    echo "Stopping MongoDB" &&
+    trap - SIGINT SIGTERM && # clear the trap
+    docker stop $container_name &&
+    docker rm $container_name &&
+    kill -- -$$ # Sends SIGTERM to child/sub processes
+  } || {
+    echo "Stopped MongoDB"
+  }
+}
+
+cmd="$1"
+
+case $cmd in
+  "start")
+  start
+  ;;
+  "run")
+  run
+  ;;
+  "stop")
+  stop
+  ;;
+  *)
+  echo "Usage: bin/mongodb {start|stop}"
+  ;;
+esac

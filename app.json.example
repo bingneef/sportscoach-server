@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "script": "app.js",
+      "name": "Tess",
+      "instances": "max",
+      "watch": false,
+      "interpreter": "./node_modules/babel-cli/bin/babel-node.js",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}

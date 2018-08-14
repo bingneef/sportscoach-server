@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+container_name=tess-redis
+
+function start {
+  echo "Starting Redis"
+  docker run \
+    --detach \
+    --name $container_name \
+    --publish 16379:6379 \
+    --volume="$(pwd)"/docker/redis/data:/data \
+    redis:3.0-alpine
+}
+
+function run {
+  trap stop SIGINT SIGTERM
+  start
+  docker logs -f $(docker ps -aqf "name=$container_name")
+  while true; do :; done
+}
+
+function stop {
+  {
+    echo "Stopping redis" &&
+    trap - SIGINT SIGTERM && # clear the trap
+    docker stop $container_name &&
+    docker rm $container_name &&
+    kill -- -$$ # Sends SIGTERM to child/sub processes
+  } || {
+    echo "Stopped redis"
+  }
+}
+
+function connect {
+  docker exec -it $container_name redis-cli
+}
+
+cmd="$1"
+
+case $cmd in
+  "start")
+  start
+  ;;
+  "stop")
+  stop
+  ;;
+  "run")
+  run
+  ;;
+  "connect")
+  connect
+  ;;
+  *)
+  echo "Usage: bin/redis {start|stop|connect}"
+  ;;
+esac

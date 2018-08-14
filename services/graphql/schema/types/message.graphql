@@ -1,0 +1,31 @@
+input MessageInput {
+  payload: String!
+  kind: String!
+}
+
+type MessageFeed {
+  count: Int
+  data: [Message]
+  conversation: Conversation
+}
+
+type Message {
+  _id: String
+  payload: String
+  kind: String
+  senderIsCaregiver: Boolean
+  senderIsBuddy: Boolean
+  senderIsUser(userId: String!): Boolean
+}
+
+type Query {
+  getMessageFeed(conversationId: String!, offset: Int = 0, size: Int = 25): MessageFeed
+}
+
+type Mutation {
+  createMessage(conversationId: String!, message: MessageInput!): Message
+}
+
+type Subscription {
+  messageSubscription(conversationId: String!): Message
+}

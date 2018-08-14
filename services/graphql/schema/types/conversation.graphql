@@ -1,0 +1,26 @@
+input ConversationInput {
+  buddyId: String
+  caregiverId: String
+}
+
+type Conversation {
+  _id: String
+  createdAt: String
+  updatedAt: String
+  buddyId: String
+  caregiverId: String
+  buddy: User
+  caregiver: User
+  otherUser: User
+  messageFeed(offset: Int = 0, size: Int = 25): MessageFeed
+}
+
+type Query {
+  getConversations: [Conversation]
+  getConversation(conversationId: String!): Conversation
+}
+
+type Mutation {
+  createConversation(conversation: ConversationInput): Conversation
+  setLastRead(conversationId: String!): Conversation
+}

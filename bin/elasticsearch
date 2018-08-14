@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+container_name=tess-elasticsearch
+
+function start {
+  echo "Starting elasticsearch"
+  docker run \
+    --detach \
+    --name $container_name \
+    --publish 19200:9200 \
+    --publish 19300:9300 \
+    --volume="$(pwd)"/docker/elasticsearch/data:/usr/share/elasticsearch/data/ \
+    elasticsearch:2.4-alpine
+}
+
+function run {
+  trap stop SIGINT SIGTERM
+  start
+  docker logs -f $(docker ps -aqf "name=$container_name")
+  while true; do :; done
+}
+
+function stop {
+  {
+    echo "Stopping elasticsearch" &&
+    trap - SIGINT SIGTERM && # clear the trap
+    docker stop $container_name &&
+    docker rm $container_name &&
+    kill -- -$$ # Sends SIGTERM to child/sub processes
+  } || {
+    echo "Stopped elasticsearch"
+  }
+}
+
+cmd="$1"
+
+case $cmd in
+  "start")
+  start
+  ;;
+  "stop")
+  stop
+  ;;
+  "run")
+  run
+  ;;
+  *)
+  echo "Usage: bin/elasticsearch {start|stop}"
+  ;;
+esac

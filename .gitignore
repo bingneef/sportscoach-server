@@ -1,2 +1,11 @@
 node_modules
+docker
+log/*.log
+app.json
+tmp
+data/**
+public/assets/**
+.env
+config/firebase.json
+db/seeds**
 yarn-error.log

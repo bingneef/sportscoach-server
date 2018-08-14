@@ -1,0 +1,31 @@
+input UserInput {
+  email: String
+  familyName: String
+  givenName: String
+  name: String
+  photoUrl: String
+  externalId: String
+}
+
+type User {
+  _id: String
+  email: String
+  familyName: String
+  givenName: String
+  name: String
+  kind: String
+  photoUrl: String
+  token: String
+  externalId: String
+  creditsRemaining: Int
+}
+
+type Query {
+  currentUser: User
+  exploreUsers: [User]
+}
+
+type Mutation {
+  updateUser(user: UserInput): User
+  validateToken(token: String): User
+}

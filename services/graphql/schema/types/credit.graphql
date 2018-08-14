@@ -1,0 +1,26 @@
+type Payment {
+  amount: Int
+  currency: String
+  description: String
+  externalId: String
+  kind: String
+  method: String
+  status: String
+  url: String
+}
+
+type Credit {
+  credits: Int
+  description: String
+  payment: Payment
+  createdAt: String
+  updatedAt: String
+}
+
+type Query {
+  getCredits: [Credit]
+}
+
+type Mutation {
+  createCredit(amount: Int): Credit
+}

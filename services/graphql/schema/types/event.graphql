@@ -1,0 +1,28 @@
+input EventInput {
+  kind: String
+  matchId: String
+  teamId: String
+}
+
+type Event {
+  id: String
+  kind: String
+  playerId: String
+  match: Match
+  matchPlayer: MatchPlayer
+}
+
+type EventFeed {
+  count: Int
+  data: [Event]
+  match: Match
+}
+
+type Query {
+  events: [Event]
+  eventById(id: String): Event
+}
+
+type Mutation {
+  createEvent(event: EventInput): Event
+}

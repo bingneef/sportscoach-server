@@ -17,12 +17,10 @@ type User {
   photoUrl: String
   token: String
   externalId: String
-  creditsRemaining: Int
 }
 
 type Query {
   currentUser: User
-  exploreUsers: [User]
 }
 
 type Mutation {

@@ -5,11 +5,6 @@ import { Credit, Message } from './index'
 const Schema = mongoose.Schema
 
 export const UserSchema = new Schema({
-  kind: {
-    type: String,
-    enum: ['CAREGIVER', 'BUDDY'],
-    required: true,
-  },
   email: String,
   familyName: String,
   givenName: String,
@@ -23,33 +18,9 @@ export const UserSchema = new Schema({
     type: String,
     unique: true,
   },
-  creditsRemaining: {
-    type: Number,
-    default: 0,
-  },
 })
 
-class UserClass {
-  async calculateCreditsRemaining () {
-    try {
-      const creditsUsed = await Message.find({senderId: this._id}).count()
-
-      const totalCredits = await Credit.aggregate(
-        { $match: { userId: this.id, $or: [{'payment.status': 'PAID'}, {'payment.status': 'PAIDOUT'}] } },
-        { $group: { _id: null, total: { $sum: { $add: ['$credits'] } } } }
-      )
-
-      // If no top-ups found..
-      if (totalCredits.length == 0) {
-        this.set({creditsRemaining: -creditsUsed})
-      } else {
-        this.set({ creditsRemaining: totalCredits[0].total - creditsUsed })
-      }
-
-      await this.save()
-    } catch (e) { console.log(e) }
-  }
-}
+class UserClass { }
 
 UserSchema.loadClass(UserClass)
 

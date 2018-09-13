@@ -1,5 +1,5 @@
 import pubsub from '../graphql/pubsub'
 
-export const SendPush = async message => {
+export const SendEventPushNotification = async message => {
   await pubsub.publish('messageSubscription', { messageSubscription: message })
 }

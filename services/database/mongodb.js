@@ -2,9 +2,10 @@ import mongoose from 'mongoose'
 import constants from '../../config/constants'
 import promise from 'bluebird'
 
-mongoose.Promise = promise
+mongoose.Promise = promise;
+mongoose.set('debug', process.env.NODE_ENV !== 'production');
 mongoose.connect(constants.mongoDatabaseUrl, {
-  useMongoClient: true,
+  useNewUrlParser: true,
   promiseLibrary: global.Promise
 })
 

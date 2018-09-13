@@ -1,0 +1,43 @@
+version: '3.5'
+
+services:
+  elasticsearch:
+    image: blacktop/elasticsearch:6.2.2
+    volumes:
+      - ./docker/data/elasticsearch:/usr/share/elasticsearch/data
+      - ./docker/conf/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - '9210:9200'
+
+  app: &app
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - ~/.ssh:/root/.ssh
+    environment:
+      NODE_ENV: development
+
+  web:
+    <<: *app
+    command: >
+      sh -c "rm tmp/pids/server.pid 2>/dev/null;
+      yarn nodemon ./app.js --exec babel-node -e js"
+    environment:
+      - DOCKER_ENV=true
+      - PORT=4200
+    ports:
+      - "4200:4200"
+    depends_on:
+      - elasticsearch
+
+  test:
+    <<: *app
+    command: yarn test
+    environment:
+      SKIP_COVERAGE: null
+
+volumes:
+  bundle:
+    name: sportscoach_bundle

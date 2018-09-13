@@ -1,0 +1,25 @@
+type HomeAway {
+  home: Int
+  away: Int
+}
+
+type Score {
+  setScores: [HomeAway]
+  setScore: HomeAway
+  lastGameScore: HomeAway
+}
+
+type Match {
+  id: String
+  status: String
+  winner: String
+  homeTeamId: String
+  awayTeamId: String
+  score: Score
+  eventFeed(offset: Int = 0, size: Int = 25): EventFeed
+}
+
+type Query {
+  matches: [Match]
+  matchById(id: String): Match
+}

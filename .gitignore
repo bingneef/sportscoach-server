@@ -6,5 +6,4 @@ tmp
 data/**
 public/assets/**
 .env
-db/seeds**
 yarn-error.log

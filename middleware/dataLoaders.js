@@ -3,17 +3,19 @@ import DataLoader from 'dataloader'
 
 import {
   batchGetUserByToken,
-  batchGetConversationById,
-  batchGetMessageById,
   batchGetUserById,
+  batchGetEventById,
+  batchGetMatchById,
+  batchGetMatchPlayerById,
 } from '../services/dataLoaders'
 
 export default async (ctx, next) => {
   ctx.dataLoaders = {
     userByToken: new DataLoader(tokens => batchGetUserByToken(tokens)),
     userById: new DataLoader(ids => batchGetUserById(ids)),
-    conversationById: new DataLoader(id => batchGetConversationById(id)),
-    messageById: new DataLoader(id => batchGetMessageById(id)),
+    eventById: new DataLoader(id => batchGetEventById(id)),
+    matchById: new DataLoader(id => batchGetMatchById(id)),
+    matchPlayerById: new DataLoader(id => batchGetMatchPlayerById(id)),
   }
 
   await next()

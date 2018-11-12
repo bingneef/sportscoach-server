@@ -1,0 +1,5 @@
+type Stat {
+  _id: String
+  kind: String
+  value: Float
+}

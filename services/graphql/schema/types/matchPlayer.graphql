@@ -1,5 +1,0 @@
-type MatchPlayer {
-  id: String
-  matchId: String
-  player: Player
-}

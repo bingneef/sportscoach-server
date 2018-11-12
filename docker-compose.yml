@@ -2,12 +2,45 @@ version: '3.5'
 
 services:
   elasticsearch:
+    container_name: 'sportscoach_elasticsearch'
     image: blacktop/elasticsearch:6.2.2
     volumes:
       - ./docker/data/elasticsearch:/usr/share/elasticsearch/data
       - ./docker/conf/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
-      - '9210:9200'
+      - '9200:9200'
+
+  redis:
+    image: redis:4.0.11-alpine
+    container_name: 'sportscoach_redis'
+    environment:
+      - appendonly=yes
+    volumes:
+      - ./docker/data/redis:/data
+    ports:
+      - '6379:6379'
+
+  mongodb:
+    image: mvertes/alpine-mongo:4.0.1-0
+    container_name: 'sportscoach_mongodb'
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+      - MONGODB_USER=root
+      - MONGODB_PASS=root
+    volumes:
+      - ./docker/data/mongodb:/data/db
+    ports:
+      - '27017:27017'
+
+  faktory:
+    image: contribsys/faktory:latest
+    container_name: 'sportscoach_faktory'
+    volumes:
+      - ./docker/data/faktory-data:/root/.faktory/db
+    ports:
+      - '7419:7419'
+      - '7420:7420'
 
   app: &app
     build:
@@ -21,9 +54,9 @@ services:
 
   web:
     <<: *app
+    container_name: 'sportscoach_web'
     command: >
-      sh -c "rm tmp/pids/server.pid 2>/dev/null;
-      yarn nodemon ./app.js --exec babel-node -e js"
+     sh -c "pwd"
     environment:
       - DOCKER_ENV=true
       - PORT=4200
@@ -31,6 +64,9 @@ services:
       - "4200:4200"
     depends_on:
       - elasticsearch
+      - mongodb
+      - faktory
+      - redis
 
   test:
     <<: *app

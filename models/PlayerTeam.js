@@ -4,19 +4,13 @@ const Schema = mongoose.Schema
 
 export const PlayerTeamSchema = new Schema({
   playerId: {
-    type: String,
-    index: true,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Player'
   },
   teamId: {
-    type: String,
-    index: true,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Team'
   },
-})
-
-class PlayerTeamClass { }
-
-PlayerTeamSchema.loadClass(PlayerTeamClass)
+});
 
 export const PlayerTeam = mongoose.model('PlayerTeam', PlayerTeamSchema)

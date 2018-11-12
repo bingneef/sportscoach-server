@@ -1,22 +1,40 @@
 import Router from 'koa-router'
 import DataLoader from 'dataloader'
 
-import {
-  batchGetUserByToken,
-  batchGetUserById,
-  batchGetEventById,
-  batchGetMatchById,
-  batchGetMatchPlayerById,
-} from '../services/dataLoaders'
+import { Player, PlayerTeam, Match, MatchTeam } from '../models';
+import { mapValueResponse, mapArrayResponse} from 'map-array-response'
 
 export default async (ctx, next) => {
   ctx.dataLoaders = {
-    userByToken: new DataLoader(tokens => batchGetUserByToken(tokens)),
-    userById: new DataLoader(ids => batchGetUserById(ids)),
-    eventById: new DataLoader(id => batchGetEventById(id)),
-    matchById: new DataLoader(id => batchGetMatchById(id)),
-    matchPlayerById: new DataLoader(id => batchGetMatchPlayerById(id)),
+    playerById: valueDataLoader({model: Player, field: '_id'}),
+    playerTeamsByTeamId: arrayDataLoader({model: PlayerTeam, field: 'teamId'}),
+    matchById: valueDataLoader({model: Match, field: '_id'}),
+    matchTeamsByTeamId: arrayDataLoader({model: MatchTeam, field: 'teamId'}),
   }
 
   await next()
+}
+
+const valueDataLoader = ({model, field}) => {
+  return new DataLoader(ids => (
+    new Promise(async (resolve, reject) => {
+      const docs = await model.find({ [field]: ids })
+      const strIds = ids.map(id => id.toString());
+
+      const response = mapValueResponse(strIds, field, docs);
+      resolve(response)
+    })
+  ))
+}
+
+const arrayDataLoader = ({model, field}) => {
+  return new DataLoader(ids => (
+    new Promise(async (resolve, reject) => {
+      const docs = await model.find({ [field]: ids })
+      const strIds = ids.map(id => id.toString());
+
+      const response = mapArrayResponse(strIds, field, docs);
+      resolve(response)
+    })
+  ))
 }

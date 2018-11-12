@@ -1,21 +1,23 @@
 input UserInput {
   email: String
-  familyName: String
-  givenName: String
-  name: String
+  firstName: String
+  lastName: String
   photoUrl: String
   externalId: String
+}
+
+input AuthInput {
+  email: String!
+  password: String!
 }
 
 type User {
   _id: String
   email: String
-  familyName: String
-  givenName: String
-  name: String
-  kind: String
-  photoUrl: String
-  token: String
+  firstName: String
+  lastName: String
+  fullName: String
+  profileImage(size: String = "thumb"): Image
   externalId: String
 }
 
@@ -24,6 +26,9 @@ type Query {
 }
 
 type Mutation {
+  signIn(user: AuthInput): Token
+  signUp(user: AuthInput): Token
+  signOut: Boolean
   updateUser(user: UserInput): User
-  validateToken(token: String): User
+  getUser(token: String): User
 }

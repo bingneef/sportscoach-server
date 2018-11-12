@@ -1,27 +1,36 @@
 import Router from 'koa-router'
+import { Token } from '../models'
+
+const badRequest = {
+  errors: [{
+    message: 'BADREQUEST',
+  }]
+}
+
+const unauthorised = {
+  errors: [{
+    message: 'UNAUTHORISED',
+  }]
+}
 
 module.exports = async (ctx, next) => {
-  const unauthorized = {
-    errors: [{
-      message: 'UNAUTHORIZED',
-    }]
-  }
-
-  const badRequest = {
-    errors: [{
-      message: 'BADREQUEST',
-    }]
-  }
-
   try {
     const token = ctx.query.token || ctx.request.header['x-auth']
-    ctx.currentUser = await ctx.dataLoaders.userByToken.load(token)
-    if (!ctx.currentUser) {
-      ctx.body = unauthorized
-      return null
+    if (token) {
+      const tokenObj = await Token.findOne({token}).populate('user');
+      if (tokenObj) {
+        ctx.currentToken = tokenObj;
+        ctx.currentUser = tokenObj.user;
+      } else {
+        throw({type: 'GRAPHQL', message: unauthorised})
+      }
     }
-  } catch (e) {
-    ctx.body = badRequest
+  } catch (error) {
+    if (error.type == 'GRAPHQL') {
+      ctx.body = error.message
+    } else {
+      ctx.body = badRequest
+    }
     return null
   }
 

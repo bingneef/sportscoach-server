@@ -3,30 +3,25 @@ import mongoose from '../services/database/mongodb'
 const Schema = mongoose.Schema
 
 export const StatSchema = new Schema({
-  sport: {
-    type: String,
-    enum: ['TENNIS'],
-    required: true,
+  matchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Match'
   },
-  type: {
-    type: String,
-    enum: ['SCORELINE'],
-    required: true,
+  playerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Player'
+  },
+  teamId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Team'
   },
   kind: {
     type: String,
-    enum: ['SETS', 'GAMES', 'POINTS'],
-    required: true,
-  },
-  matchId: {
-    type: String,
+    enum: ['MATCH_GOALS', 'MATCH_DURATION', 'TEAM_GOALS', 'PLAYER_GOALS', 'PLAYER_ASSISTS', 'PLAYER_TIME_PLAYED'],
     index: true,
     required: true,
   },
-})
-
-class StatClass { }
-
-StatSchema.loadClass(StatClass)
+  value: Number,
+});
 
 export const Stat = mongoose.model('Stat', StatSchema)

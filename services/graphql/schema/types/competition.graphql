@@ -1,0 +1,6 @@
+type Competition {
+  _id: String
+  kind: String
+  teams: [Team]
+  matches: [Match]
+}

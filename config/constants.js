@@ -12,21 +12,18 @@ export default {
   protocol,
   serverPort,
   baseUrl,
-  redisPort: process.env.REDIS_PORT || 16379,
-  mongoDatabaseUrl: process.env.MONGODB_URL || 'mongodb://localhost:27017',
+  redis: {
+    port: process.env.REDIS_PORT || 6379,
+    url: '0.0.0.0',
+  },
+  mongoDatabaseUrl: process.env.MONGODB_URL || `mongodb://${baseUrl}:27017/sportscoach`,
   elasticSearch: {},
   staticUrl: process.env.STATIC_URL || `${protocol}://${baseUrl}:${serverPort}`,
   tokens: {
     apolloEngine: process.env.APOLLO_ENGINE_KEY,
     sentry: process.env.SENTRY_KEY,
-    mollie: process.env.MOLLIE_KEY,
   },
   frontEnd: {
     url: process.env.FRONT_END_URL || 'http://localhost:3030',
-  },
-  thirdParty: {
-    slack: {
-      payment: process.env.SLACK_WEBHOOK_URL,
-    }
   }
 };

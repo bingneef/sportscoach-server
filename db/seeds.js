@@ -1,21 +1,35 @@
 import {
-  User,
-  Player,
-  Match,
-  MatchPlayer,
+  Competition,
+  CompetitionTeam,
   Event,
-  Team,
+  Token,
+  Match,
+  MatchTeam,
+  Player,
   PlayerTeam,
+  PlayerUser,
+  Season,
+  Stat,
+  Team,
+  TeamUser,
+  User,
 } from '../models'
 
 const clearDatabase = async () => {
+  await Competition.remove();
+  await CompetitionTeam.remove();
+  await Event.remove();
+  await Token.remove();
+  await Match.remove();
+  await MatchTeam.remove();
+  await Player.remove();
+  await PlayerTeam.remove();
+  await PlayerUser.remove();
+  await Season.remove();
+  await Stat.remove();
+  await Team.remove();
+  await TeamUser.remove();
   await User.remove()
-  await Player.remove()
-  await Match.remove()
-  await MatchPlayer.remove()
-  await Event.remove()
-  await Team.remove()
-  await PlayerTeam.remove()
 }
 
 const init = async () => {
@@ -23,55 +37,179 @@ const init = async () => {
     await clearDatabase()
 
     const user = await new User({
-      name: 'Bing Steup',
-      token: 'testtest',
-      externalId: 'oARkuNOuhwM3mUke0qQFtzu3XhC2',
+      firstName: 'Bing',
+      lastName: 'Steup',
+      email: 'bingsteup@gmail.com',
+      password: 'testtest',
     }).save()
 
-    const player = await new Player({
+    const season = await new Season({
+      startAt: '2018-09-01',
+      endAt: '2019-08-31',
+    }).save()
+
+    const competition = await new Competition({
+      kind: 'LEAGUE',
+    }).save()
+
+    const team_1 = await new Team({
+      name: 'Ariston',
+    }).save()
+
+    const ct_1 = await new CompetitionTeam({
+      competitionId: competition.id,
+      teamId: team_1.id,
+    }).save()
+
+    const player_1_1 = await new Player({
+      firstName: 'Bing',
+    }).save()
+
+    const player_1_2 = await new Player({
+      firstName: 'Boukie',
+    }).save()
+
+    const player_1_3 = await new Player({
+      firstName: 'J3',
+    }).save()
+
+    await new PlayerTeam({
+      teamId: team_1.id,
+      playerId: player_1_1.id,
+    }).save()
+
+    await new PlayerTeam({
+      teamId: team_1.id,
+      playerId: player_1_2.id,
+    }).save()
+
+    await new PlayerTeam({
+      teamId: team_1.id,
+      playerId: player_1_3.id,
+    }).save()
+
+    await new PlayerUser({
+      playerId: player_1_1.id,
       userId: user.id,
-    }).save()
-
-    const team = await new Team({
-      name: 'Home',
+      role: 'OWNER',
     }).save()
 
     const team_2 = await new Team({
-      name: 'Away',
+      name: 'VVNoordwijk',
     }).save()
 
-    const playerTeam = await new PlayerTeam({
-      playerId: player.id,
-      teamId: team.id,
+    const ct_2 = await new CompetitionTeam({
+      competitionId: competition.id,
+      teamId: team_2.id,
     }).save()
 
     const match = await new Match({
-      homeTeamId: team.id,
-      awayTeamId: team_2.id,
-      score: {
-        setScores: [{home: 0, away: 0}],
-        setScore: {home: 0, away: 0},
-        lastGameScore: {home: 0, away: 0},
-      },
+      competitionId: competition.id,
+      status: 'PROGRESS',
+      competition: competition.id,
     }).save()
 
-    const matchPlayer = await new MatchPlayer({
+    const mt_1 = await new MatchTeam({
       matchId: match.id,
-      playerId: player.id,
+      teamId: team_1.id,
+      kind: 'HOME',
     }).save()
 
-    let promises = [];
-    for (let i = 0; i < 500; i++) {
-      let teamId = Math.random() >= 0.5 ? team.id : team_2.id;
-      promises.push(new Event({
-        kind: 'POINT',
-        teamId,
-        matchId: match.id,
-      }).save());
-    }
-    await Promise.all(promises);
+    const mt_2 = await new MatchTeam({
+      matchId: match.id,
+      teamId: team_2.id,
+      kind: 'AWAY',
+    }).save()
 
-    await match.calculateScore();
+    await new Event({
+      matchId: match.id,
+      teamId: team_1.id,
+      kind: 'STARTING_LINEUP',
+      playerId: player_1_1.id,
+    }).save()
+
+    await new Event({
+      matchId: match.id,
+      teamId: team_1.id,
+      kind: 'STARTING_LINEUP',
+      playerId: player_1_3.id,
+    }).save()
+
+    const tps_1 = await new Event({
+      matchId: match.id,
+      kind: 'TIMING_PERIOD_START',
+      value: 0,
+      createdAt: new Date(2018,1,1,14,30),
+    }).save()
+
+    await new Event({
+      matchId: match.id,
+      kind: 'TIMING_PERIOD_END',
+      parentId: tps_1.id,
+      value: 0,
+      createdAt: new Date(2018,1,1,15,16),
+    }).save()
+
+    const tps_2 = await new Event({
+      matchId: match.id,
+      kind: 'TIMING_PERIOD_START',
+      value: 1,
+      createdAt: new Date(2018,1,1,15,30),
+    }).save()
+
+    const subOut = await new Event({
+      matchId: match.id,
+      playerId: player_1_1.id,
+      teamId: team_1.id,
+      kind: 'SUB_OUT',
+      createdAt: new Date(2018,1,1,15,32),
+    }).save()
+
+    await new Event({
+      matchId: match.id,
+      playerId: player_1_2.id,
+      teamId: team_1.id,
+      parentId: subOut.id,
+      kind: 'SUB_IN',
+      createdAt: new Date(2018,1,1,15,32),
+    }).save()
+
+    const tp_1 = await new Event({
+      matchId: match.id,
+      kind: 'TIMING_PAUSED',
+      value: 1,
+      createdAt: new Date(2018,1,1,15,45),
+    }).save()
+
+    await new Event({
+      matchId: match.id,
+      kind: 'TIMING_RESUMED',
+      parentId: tp_1.id,
+      value: 1,
+      createdAt: new Date(2018,1,1,15,47,30),
+    }).save()
+
+    await new Event({
+      matchId: match.id,
+      kind: 'TIMING_PERIOD_END',
+      parentId: tps_2.id,
+      value: 1,
+      createdAt: new Date(2018,1,1,16,20),
+    }).save()
+
+    const event_1 = await new Event({
+      matchId: match.id,
+      teamId: team_2.id,
+      kind: 'GOAL',
+      playerId: player_1_1.id,
+    }).save()
+
+    await new Event({
+      matchId: match.id,
+      teamId: team_2.id,
+      parentID: event_1.id,
+      kind: 'ASSIST',
+    }).save()
 
   } catch (e) {
     console.error(e)

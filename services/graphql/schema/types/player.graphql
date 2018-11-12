@@ -1,5 +1,11 @@
 type Player {
-  id: String
+  _id: String
   firstName: String
-  lastName: String
+  goals: Float
+  stats: [Stat]
+  matches: [Match]
+}
+
+type Query {
+  players: [Player]
 }

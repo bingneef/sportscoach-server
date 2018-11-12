@@ -1,0 +1,4 @@
+type Score {
+  teamId: String
+  value: Float
+}

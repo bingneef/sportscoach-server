@@ -4,8 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "docker-compose run --rm --service-ports web",
-    "db:seed": "babel-node db/seeds.js --exec babel-node"
+    "docker": "docker-compose run --rm --service-ports web",
+    "start": "yarn nodemon ./app.js --exec babel-node -e js",
+    "db:seed": "yarn babel-node db/seeds.js --exec babel-node",
+    "runner": "yarn babel-node db/runner.js --exec babel-node"
   },
   "dependencies": {
     "@babel/cli": "^7.0.0",
@@ -14,22 +16,27 @@
     "@koa/cors": "2",
     "apollo-engine": "^0.5.2",
     "apollo-server-koa": "^1.2.0",
+    "babel-jest": "^23.6.0",
     "babel-preset-env": "^1.7.0",
-    "bcrypt": "3.0.0",
+    "bcrypt": "^3.0.0",
     "bluebird": "^3.5.0",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "dataloader": "^1.4.0",
     "dotenv": "^4.0.0",
     "faker": "^4.1.0",
+    "faktory-worker": "^2.0.1",
     "firebase-admin": "^5.4.3",
+    "fsevents": "1.2.4",
     "graphql": "^0.13.2",
     "graphql-depth-limit": "^1.1.0",
+    "graphql-redis-subscriptions": "^1.5.0",
     "graphql-request": "^1.8.2",
-    "graphql-subscriptions": "^0.5.8",
+    "graphql-subscriptions": "^1.0.0",
     "graphql-tools": "^3.1.1",
     "graphql-validation-complexity": "^0.2.3",
-    "ioredis": "^3.1.4",
+    "ioredis": "^4.0.0",
+    "jest": "^23.6.0",
     "koa": "^2.5.2",
     "koa-bodyparser": "^4.2.1",
     "koa-compress": "^3.0.0",
@@ -41,6 +48,7 @@
     "koa-response-time": "^2.0.0",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
+    "lodash": "^4.17.11",
     "lodash.last": "^3.0.0",
     "map-array-response": "^0.0.3",
     "merge-graphql-schemas": "^1.1.4",
@@ -48,15 +56,27 @@
     "mongoose-schema-extend": "^0.2.2",
     "node-cron": "^1.2.1",
     "raven": "^2.2.1",
+    "redbird": "^0.8.0",
     "subscriptions-transport-ws": "^0.9.14",
     "unescape": "^1.0.1",
     "wade": "^0.3.3",
     "winston": "^2.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.1",
+    "@babel/core": "^7.1.0",
     "@babel/preset-env": "^7.0.0",
+    "babel-core": "^7.0.0-bridge",
     "nodemon": "^1.12.1"
+  },
+  "jest": {
+    "rootDir": ".",
+    "setupTestFrameworkScriptFile": "<rootDir>/__tests__/startup.js",
+    "testMatch": [
+      "<rootDir>/__tests__/**/?(*.)(spec).js?(x)"
+    ],
+    "transform": {
+      ".*": "<rootDir>/node_modules/babel-jest"
+    }
   },
   "author": "Bing Steup",
   "license": "ISC"

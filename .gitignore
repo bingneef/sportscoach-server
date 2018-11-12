@@ -1,5 +1,5 @@
 node_modules
-docker
+docker/data
 log/*.log
 app.json
 tmp
@@ -7,3 +7,4 @@ data/**
 public/assets/**
 .env
 yarn-error.log
+dist

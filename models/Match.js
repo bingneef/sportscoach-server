@@ -1,74 +1,76 @@
-import last from 'lodash.last';
+import uniq from 'lodash/uniq'
 
 import mongoose from '../services/database/mongodb'
-import { Event } from './Event';
-import { calcTennisScore, addTennisPoint } from '../services/stats/tennis';
+import { runBackgroundJob } from '../services/faktory';
+import { Event, Team, MatchTeam, Player, Stat, Competition } from '.'
 
 const Schema = mongoose.Schema
-
-const homeAwayDoc = {
-  home: {
-    type: Number,
-    required: true,
-  },
-  away: {
-    type: Number,
-    required: true,
-  },
-};
 
 export const MatchSchema = new Schema({
   status: {
     type: String,
-    enum: ['PLANNED', 'IN_PROGRESS', 'FINISHED'],
-    required: true,
-    default : 'PLANNED',
-  },
-  winnerTeamId: {
-    type: String,
-    index: true,
-  },
-  homeTeamId: {
-    type: String,
+    enum: ['PLANNED', 'PROGRESS', 'COMPLETED'],
     index: true,
     required: true,
   },
-  awayTeamId: {
-    type: String,
-    index: true,
-    required: true,
+  competitionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Competition'
   },
-  score: {
-    setScores: [homeAwayDoc],
-    setScore: homeAwayDoc,
-    lastGameScore: homeAwayDoc,
-  },
-})
+});
 
 class MatchClass {
-  async calculateScore () {
-    try {
-      const pointEvents = await Event.find({matchId: this.id, kind: 'POINT'});
-      const { sets, games, points } = calcTennisScore({match: this, pointEvents});
-      const setScores = games.map(last);
-      const setScore = last(sets);
-      const lastGameScore = last(last(last(points)));
-
-      this.set({score: { setScores, setScore, lastGameScore }})
-
-      await this.save()
-    } catch (e) { console.log(e) }
+  async calcStats() {
+    await runBackgroundJob({jobtype: 'CalcStatsForMatch', args: [this.id]})
+    return true;
   }
 
-  async addPoint(pointEvent) {
-    try {
-      console.log(JSON.stringify(this.score));
-      const score = addTennisPoint({...this.score, match: this, pointEvent});
-      console.log(score);
-      this.set({score})
-      const resp = await this.save()
-      console.log(JSON.stringify(resp));
-    } catch (e) { console.log(e) }
+  async complete() {
+    if (this.status == 'COMPLETED') {
+      return false
+    }
+
+    await runBackgroundJob({jobtype: 'CalcStatsForMatch', args: [this.id]})
+    return this.save({status: 'COMPLETED'})
+  }
+
+  async score() {
+    return Stat.find({matchId: this.id, kind: 'TEAM_GOALS'});
+  }
+
+  async duration () {
+    const stat = await Stat.findOne({matchId: this.id, kind: 'MATCH_DURATION'});
+    const { value = 0 } = stat || {};
+    return value
+  }
+
+  async competition () {
+    return Competition.findOne({_id: this.competitionId})
+  }
+
+  async stats (args = {}, select = null) {
+    let query = Stat.where({matchId: this.id, teamId: null, playerId: null, ...args});
+    if (select) { query = query.select(select) }
+
+    return query
+  }
+
+  async events (args = {}, select = null) {
+    let query = Event.where({...args, matchId: this.id});
+    if (select) { query = query.select(select) }
+    return query
+  }
+
+  async teams () {
+    const matchTeams = await MatchTeam.find({matchId: this.id}).select('teamId');
+    const teamIds = uniq(matchTeams.map(item => item.teamId));
+    return Team.find({_id: teamIds});
+  }
+
+  async players (args = {}) {
+    const events = await this.events({ ...args, kind: ['STARTING_LINEUP', 'SUB_IN']}, 'playerId');
+    const playerIds = uniq(events.map(item => item.playerId));
+    return Player.find({_id: playerIds});
   }
 }
 

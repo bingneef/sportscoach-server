@@ -26,6 +26,7 @@ import DataLoadersMiddleware from './middleware/dataLoaders'
 
 import { initCron } from './cron'
 import { initSentry } from './services/sentry'
+import { User } from './models';
 
 const serverPort = constants.serverPort
 const app = new Koa()
@@ -41,7 +42,7 @@ if (process.env.NODE_ENV == 'production' && constants.tokens.apolloEngine) {
       }
     },
     graphqlPort: serverPort,
-    endpoint: '/graphql',
+    endpoint: '/api',
     dumpTraffic: true,
   });
   engine.start()
@@ -71,7 +72,17 @@ if (!module.parent) {
     new SubscriptionServer({
       execute,
       subscribe,
-      schema
+      schema,
+      onConnect: async (connectionParams, webSocket) => {
+        let userId = -1;
+        if (connectionParams.authToken) {
+          const user = await User.findOne({ token: connectionParams.authToken })
+          if (user) {
+            userId = user._id;
+          }
+        }
+        return { userId }
+      }
     }, {
       server: ws,
       path: '/subscriptions',

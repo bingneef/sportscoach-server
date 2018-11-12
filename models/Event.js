@@ -1,42 +1,51 @@
 import mongoose from '../services/database/mongodb'
-import { SendEventPushNotification } from '../services/notifications'
-import { Match } from './Match';
+import { Match, Player, Team } from '.'
 
 const Schema = mongoose.Schema
 
+export const timingKinds = ['TIMING_PERIOD_START', 'TIMING_PERIOD_END', 'TIMING_PAUSED', 'TIMING_RESUMED']
+
 export const EventSchema = new Schema({
-  kind: {
-    type: String,
-    enum: ['TIME', 'POINT'],
-    required: true,
-  },
-  matchPlayerId: {
-    type: String,
-    index: true,
-    required: false,
+  matchId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Match'
   },
   teamId: {
-    type: String,
-    index: true,
-    required: false,
+    type: Schema.Types.ObjectId,
+    ref: 'Team'
   },
-  matchId: {
+  playerId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Player'
+  },
+  parentId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Event'
+  },
+  kind: {
     type: String,
+    enum: ['GOAL', 'ASSIST', 'STARTING_LINEUP', 'SUB_IN', 'SUB_OUT', ...timingKinds],
     index: true,
     required: true,
   },
-})
+  value: Schema.Types.Mixed,
+  createdAt: { type: Date, default: Date.now },
+});
 
-class EventClass { }
+class EventClass {
+  async match() {
+    return Match.findOne({_id: this.matchId})
+  }
+
+  async player() {
+    return Player.findOne({_id: this.playerId})
+  }
+
+  async team() {
+    return Team.findOne({_id: this.teamId})
+  }
+}
 
 EventSchema.loadClass(EventClass)
-
-EventSchema.post('save', async (doc) => {
-  if (doc.kind == 'POINT') {
-    // const match = await Match.findOne({_id: doc.matchId});
-    // await match.addPoint(doc);
-  }
-  await SendEventPushNotification(doc)
-})
 
 export const Event = mongoose.model('Event', EventSchema)

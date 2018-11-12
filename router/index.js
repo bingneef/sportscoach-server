@@ -4,7 +4,7 @@ import constants from '../config/constants'
 import schema from '../services/graphql/schema/index'
 import depthLimit from 'graphql-depth-limit'
 import { createComplexityLimitRule } from 'graphql-validation-complexity';
-
+import { runBackgroundJob } from '../services/faktory';
 const router = new Router()
 
 router.all('/api',
@@ -12,7 +12,7 @@ router.all('/api',
     schema,
     validationRules: [
       depthLimit(10),
-      createComplexityLimitRule(1000),
+      createComplexityLimitRule(100000),
     ],
     rootValue: {
       ctx,
@@ -22,16 +22,9 @@ router.all('/api',
   })(ctx, next)
 )
 
-if (process.env.NODE_ENV !== 'production') {
-  router.get('/graphiql', graphiqlKoa({
-    schema,
-    endpointURL: '/api',
-    subscriptionsEndpoint: `ws://${constants.baseUrl}:${constants.serverPort}/subscriptions`
-  }))
-}
-
 // Other routes
 router.all('/status', async (ctx) => {
+  // await runBackgroundJob({jobtype: 'CalcStatsForMatch', args: ['5bd816b395e8d291dcc9ef8f'']})
   ctx.body = { alive: true }
 })
 

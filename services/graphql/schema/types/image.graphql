@@ -1,0 +1,7 @@
+type Image {
+  url: String
+  size: String
+  width: Int
+  height: Int
+  colorScheme: [String]
+}

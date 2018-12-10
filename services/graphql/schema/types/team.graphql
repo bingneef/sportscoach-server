@@ -1,5 +1,5 @@
 type Team {
-  _id: String
+  _id: ID!
   name: String
   players: [Player]
   matches: [Match]

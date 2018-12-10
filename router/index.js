@@ -24,7 +24,6 @@ router.all('/api',
 
 // Other routes
 router.all('/status', async (ctx) => {
-  // await runBackgroundJob({jobtype: 'CalcStatsForMatch', args: ['5bd816b395e8d291dcc9ef8f'']})
   ctx.body = { alive: true }
 })
 

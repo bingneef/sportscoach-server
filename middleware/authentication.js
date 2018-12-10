@@ -15,7 +15,7 @@ const unauthorised = {
 
 module.exports = async (ctx, next) => {
   try {
-    const token = ctx.query.token || ctx.request.header['x-auth']
+    const token = ctx.query.token || ctx.request.header['x-auth-token']
     if (token) {
       const tokenObj = await Token.findOne({token}).populate('user');
       if (tokenObj) {

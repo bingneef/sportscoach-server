@@ -5,6 +5,7 @@ type Event {
   player: Player
   team: Team
   match: Match
+  parentId: String
 }
 
 input CreateEventInput {

@@ -37,7 +37,7 @@ services:
     image: contribsys/faktory:latest
     container_name: 'sportscoach_faktory'
     volumes:
-      - ./docker/data/faktory-data:/root/.faktory/db
+      - ./docker/data/faktory-data:/var/lib/faktory
     ports:
       - '7419:7419'
       - '7420:7420'

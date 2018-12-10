@@ -23,6 +23,6 @@ faktory.register('CalcStatsForMatch', async matchId => {
   CalcStatsForMatch(matchId)
 });
 
-(async () => {
-  await faktory.work();
-})();
+// (async () => {
+//   await faktory.work();
+// })();

@@ -6,7 +6,7 @@ import { mapValueResponse, mapArrayResponse} from 'map-array-response'
 
 export default async (ctx, next) => {
   ctx.dataLoaders = {
-    playerById: valueDataLoader({model: Player, field: '_id'}),
+  playerById: valueDataLoader({model: Player, field: '_id'}),
     playerTeamsByTeamId: arrayDataLoader({model: PlayerTeam, field: 'teamId'}),
     matchById: valueDataLoader({model: Match, field: '_id'}),
     matchTeamsByTeamId: arrayDataLoader({model: MatchTeam, field: 'teamId'}),

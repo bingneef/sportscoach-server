@@ -2,7 +2,10 @@ import { User } from '../../../../models';
 
 export default {
   Query: {
-    currentUser: async ({ ctx }) => ctx.currentUser,
+    currentUser: async ({ ctx }) => {
+      console.log(ctx.currentUser);
+      return ctx.currentUser
+    }
   },
   Mutation: {
     signIn: async ({ ctx }, { user: { email, password } }) => {

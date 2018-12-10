@@ -11,6 +11,7 @@ import cors from '@koa/cors'
 import { execute, subscribe } from 'graphql'
 import { createServer } from 'http'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
+import { addMockFunctionsToSchema, MockList } from 'graphql-tools';
 import schema from './services/graphql/schema/index'
 
 import constants from './config/constants'
@@ -23,6 +24,7 @@ import servicesRouter from './router/services'
 
 import AuthenticationMiddleware from './middleware/authentication'
 import DataLoadersMiddleware from './middleware/dataLoaders'
+import MockMiddleware from './middleware/mock'
 
 import { initCron } from './cron'
 import { initSentry } from './services/sentry'
@@ -66,6 +68,24 @@ app.use(AuthenticationMiddleware)
 app.use(router.routes()).use(router.allowedMethods())
 app.use(koaStatic('./public'))
 
+// Mock
+if (process.env.MOCK_SERVER === 'true') {
+  app.use(MockMiddleware)
+  const mocks = {
+    Query: () => ({
+      teams: () => new MockList(1),
+    }),
+    Team: () => ({
+      name: '🔥🦄',
+    }),
+  }
+
+  addMockFunctionsToSchema({ schema, mocks });
+} else {
+  initCron()
+  initSentry()
+}
+
 if (!module.parent) {
   const ws = createServer(app.callback())
   ws.listen(serverPort, () => {
@@ -88,9 +108,6 @@ if (!module.parent) {
       path: '/subscriptions',
     })
   })
-
-  initCron()
-  initSentry()
 
   console.log(`GraphQL Server is now running on ${constants.protocol}://${constants.baseUrl}:${serverPort}`)
   console.log(`Version: ${constants.version}`)

@@ -1,4 +1,4 @@
 type Score {
   teamId: String
-  value: Float
+  value: Int
 }

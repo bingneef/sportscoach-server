@@ -67,6 +67,19 @@ services:
       - mongodb
       - faktory
       - redis
+  
+  mock:
+    <<: *app
+    container_name: 'mock'
+    command: >
+     sh -c "yarn install &&
+     yarn start"
+    environment:
+      - DOCKER_ENV=true
+      - MOCK_SERVER=true
+      - PORT=4201
+    ports:
+      - "4201:4201"
 
   test:
     <<: *app

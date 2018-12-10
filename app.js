@@ -51,6 +51,31 @@ if (process.env.NODE_ENV == 'production' && constants.tokens.apolloEngine) {
   app.use(engine.koaMiddleware())
 }
 
+// Mock
+if (process.env.MOCK_SERVER === 'true') {
+  app.use(MockMiddleware)
+
+  const mocks = {
+    Query: () => ({
+      teams: ({ctx}) => {
+        if (ctx.testid == 'App-1') {
+          return new MockList(1)
+        } else {
+          return new MockList(2)
+        }
+      },
+    }),
+    Team: () => ({
+      name: '🔥🦄',
+    }),
+  }
+
+  addMockFunctionsToSchema({ schema, mocks });
+} else {
+  initCron()
+  initSentry()
+}
+
 // Middleware
 app.use(DataLoadersMiddleware)
 app.use(KoaLogger(logger))
@@ -67,24 +92,6 @@ app.use(AuthenticationMiddleware)
 // Routes
 app.use(router.routes()).use(router.allowedMethods())
 app.use(koaStatic('./public'))
-
-// Mock
-if (process.env.MOCK_SERVER === 'true') {
-  app.use(MockMiddleware)
-  const mocks = {
-    Query: () => ({
-      teams: () => new MockList(1),
-    }),
-    Team: () => ({
-      name: '🔥🦄',
-    }),
-  }
-
-  addMockFunctionsToSchema({ schema, mocks });
-} else {
-  initCron()
-  initSentry()
-}
 
 if (!module.parent) {
   const ws = createServer(app.callback())

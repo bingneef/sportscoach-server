@@ -17,8 +17,6 @@ describe.only('#calcMatchStats', () => {
       { _id: 1, kind: 'BOGUS'},
     ]
 
-    console.log(kindStats);
-
     await calcMatchStats({events, match})
 
     expect(kindStats).toHaveBeenCalledTimes(2);

@@ -1,3 +1,5 @@
+import '../init';
+
 import {
   Competition,
   CompetitionTeam,
@@ -13,7 +15,7 @@ import {
   Team,
   TeamUser,
   User,
-} from '../models'
+} from 'app/models'
 
 const clearDatabase = async () => {
   await Competition.remove();

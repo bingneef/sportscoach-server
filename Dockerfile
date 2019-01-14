@@ -19,3 +19,5 @@ RUN yarn install
 COPY . .
 
 EXPOSE 4200
+
+CMD [ "yarn start" ]

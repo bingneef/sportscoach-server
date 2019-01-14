@@ -1,3 +1,5 @@
+import 'app-module-path/register';
+
 import Koa from 'koa'
 import Helmet from 'koa-helmet'
 import ResponseTime from 'koa-response-time'
@@ -11,24 +13,21 @@ import cors from '@koa/cors'
 import { execute, subscribe } from 'graphql'
 import { createServer } from 'http'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
-import { addMockFunctionsToSchema, MockList } from 'graphql-tools';
-import schema from './services/graphql/schema/index'
+import schema from './app/graphql/schema/index'
 
 import constants from './config/constants'
-import logger from './services/logger'
+import logger from './app/services/logger'
 
-import Router from 'koa-router'
-import router from './router'
-import sessionRouter from './router/session'
-import servicesRouter from './router/services'
+import router from './app/router'
+import sessionRouter from './app/router/session'
+import servicesRouter from './app/router/services'
 
-import AuthenticationMiddleware from './middleware/authentication'
-import DataLoadersMiddleware from './middleware/dataLoaders'
-import MockMiddleware from './middleware/mock'
+import AuthenticationMiddleware from './app/middleware/authentication'
+import DataLoadersMiddleware from './app/middleware/dataLoaders'
 
 import { initCron } from './cron'
-import { initSentry } from './services/sentry'
-import { User } from './models';
+import { initSentry } from './app/services/sentry'
+import { User } from './app/models';
 
 const serverPort = constants.serverPort
 const app = new Koa()
@@ -51,30 +50,8 @@ if (process.env.NODE_ENV == 'production' && constants.tokens.apolloEngine) {
   app.use(engine.koaMiddleware())
 }
 
-// Mock
-if (process.env.MOCK_SERVER === 'true') {
-  app.use(MockMiddleware)
-
-  const mocks = {
-    Query: () => ({
-      teams: ({ctx}) => {
-        if (ctx.testid == 'App-1') {
-          return new MockList(1)
-        } else {
-          return new MockList(2)
-        }
-      },
-    }),
-    Team: () => ({
-      name: '🔥🦄',
-    }),
-  }
-
-  addMockFunctionsToSchema({ schema, mocks });
-} else {
-  initCron()
-  initSentry()
-}
+initCron()
+initSentry()
 
 // Middleware
 app.use(DataLoadersMiddleware)

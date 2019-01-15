@@ -1,4 +1,4 @@
-import 'app-module-path/register';
+import 'app-module-path/cwd';
 
 import Koa from 'koa'
 import Helmet from 'koa-helmet'
@@ -6,9 +6,7 @@ import ResponseTime from 'koa-response-time'
 import KoaLogger from 'koa-logger-winston'
 import koaBody from 'koa-bodyparser'
 import koaStatic from 'koa-static'
-import { Engine } from 'apollo-engine'
 import compress from 'koa-compress'
-import cors from '@koa/cors'
 
 import { execute, subscribe } from 'graphql'
 import { createServer } from 'http'
@@ -25,33 +23,10 @@ import servicesRouter from './app/router/services'
 import AuthenticationMiddleware from './app/middleware/authentication'
 import DataLoadersMiddleware from './app/middleware/dataLoaders'
 
-import { initCron } from './cron'
-import { initSentry } from './app/services/sentry'
 import { User } from './app/models';
 
 const serverPort = constants.serverPort
 const app = new Koa()
-app.use(cors())
-
-// Apollo Engine
-if (process.env.NODE_ENV == 'production' && constants.tokens.apolloEngine) {
-  const engine = new Engine({
-    engineConfig: {
-      apiKey: constants.tokens.apolloEngine,
-      logging: {
-        level: 'DEBUG'
-      }
-    },
-    graphqlPort: serverPort,
-    endpoint: '/api',
-    dumpTraffic: true,
-  });
-  engine.start()
-  app.use(engine.koaMiddleware())
-}
-
-initCron()
-initSentry()
 
 // Middleware
 app.use(DataLoadersMiddleware)
@@ -97,3 +72,9 @@ if (!module.parent) {
   console.log(`Version: ${constants.version}`)
   console.log(`Environment: ${(process.env.NODE_ENV || 'dev')}`)
 }
+
+module.exports = app
+  
+require('require-all')({
+  dirname: __dirname + '/start',
+});

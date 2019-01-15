@@ -1,3 +1,5 @@
+import 'app-module-path/cwd';
+
 import {
   Competition,
   CompetitionTeam,
@@ -13,9 +15,9 @@ import {
   Team,
   TeamUser,
   User,
-} from '../models'
+} from 'app/models'
 
-import { CalcStatsForMatch } from '../services/faktory/workers/stats';
+import { CalcStatsForMatch } from 'app/services/faktory/workers/stats';
 
 const init = async () => {
   try {

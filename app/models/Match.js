@@ -1,25 +1,9 @@
 import uniq from 'lodash/uniq'
-
-import mongoose from 'app/services/database/mongodb'
 import { runBackgroundJob } from 'app/services/faktory';
+
 import { Event, Team, MatchTeam, Player, Stat, Competition } from '.'
 
-const Schema = mongoose.Schema
-
-export const MatchSchema = new Schema({
-  status: {
-    type: String,
-    enum: ['PLANNED', 'PROGRESS', 'COMPLETED'],
-    index: true,
-    required: true,
-  },
-  competitionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Competition'
-  },
-});
-
-class MatchClass {
+export default class MatchClass {
   async calcStats() {
     await runBackgroundJob({jobtype: 'CalcStatsForMatch', args: [this.id]})
     return true;
@@ -73,7 +57,3 @@ class MatchClass {
     return Player.find({_id: playerIds});
   }
 }
-
-MatchSchema.loadClass(MatchClass)
-
-export const Match = mongoose.model('Match', MatchSchema)

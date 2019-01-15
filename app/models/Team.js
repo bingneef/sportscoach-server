@@ -1,18 +1,6 @@
 import uniq from 'lodash/uniq'
 
-import mongoose from 'app/services/database/mongodb'
-import { PlayerTeam, Player, MatchTeam, Match } from '.'
-
-const Schema = mongoose.Schema
-
-export const TeamSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-});
-
-class TeamClass {
+export default class TeamClass {
   async players(ctx) {
     const playerTeams = await ctx.dataLoaders.playerTeamsByTeamId.load(this._id);
     const playerIds = uniq(playerTeams.map(item => item.playerId));
@@ -25,7 +13,3 @@ class TeamClass {
     return Promise.all(matchIds.map(matchId => ctx.dataLoaders.matchById.load(matchId)));
   }
 }
-
-TeamSchema.loadClass(TeamClass)
-
-export const Team = mongoose.model('Team', TeamSchema)

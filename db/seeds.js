@@ -1,4 +1,4 @@
-import '../init';
+import 'app-module-path/cwd';
 
 import {
   Competition,
@@ -15,7 +15,7 @@ import {
   Team,
   TeamUser,
   User,
-} from 'app/models'
+} from 'app/models';
 
 const clearDatabase = async () => {
   await Competition.remove();

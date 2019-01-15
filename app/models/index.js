@@ -1,14 +1,17 @@
-export { Competition } from './Competition';
-export { CompetitionTeam } from './CompetitionTeam';
-export { Event } from './Event';
-export { Token } from './Token';
-export { Match } from './Match';
-export { MatchTeam } from './MatchTeam';
-export { Player } from './Player';
-export { PlayerTeam } from './PlayerTeam';
-export { PlayerUser } from './PlayerUser';
-export { Season } from './Season';
-export { Stat } from './Stat';
-export { Team } from './Team';
-export { TeamUser } from './TeamUser';
-export { User } from './User';
+// Actually import the models from db-schemas, they are Mongoose enriched
+export { 
+  Competition,
+  CompetitionTeam,
+  Event,
+  Match,
+  MatchTeam,
+  Player,
+  PlayerTeam,
+  PlayerUser,
+  Season,
+  Stat,
+  Team,
+  TeamUser,
+  Token,
+  User,
+} from 'app/db-schemas';

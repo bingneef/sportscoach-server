@@ -57,6 +57,7 @@
     "node-cron": "^1.2.1",
     "raven": "^2.2.1",
     "redbird": "^0.8.0",
+    "require-all": "^3.0.0",
     "subscriptions-transport-ws": "^0.9.14",
     "unescape": "^1.0.1",
     "wade": "^0.3.3",
